@@ -1,0 +1,4 @@
+!pip install 'corus==0.10.0'
+!pip install 'nltk==3.8.1'
+!pip install 'pymystem3==0.2.0'
+!pip install 'pymorphy2==0.9.1'
