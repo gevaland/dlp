@@ -12,3 +12,5 @@ https://drive.google.com/drive/folders/1uRjhYgJrJFe5PR-Bww4Md0Li7XiSg3ta
 ## Документация
 Документация доступна по url  
 ```http://127.0.0.1:8600/docs```
+## Видео с демонстрацией работы
+[Видео](https://drive.google.com/file/d/1XgUxX31-SLS5zWhKsPzVJcYSZi00_Zcu/view?usp=drive_link)
