@@ -5,8 +5,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from typing import List, Optional
-from sqlalchemy import ForeignKey, select, delete
+from typing import Optional
+from sqlalchemy import delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.orm import Session
 

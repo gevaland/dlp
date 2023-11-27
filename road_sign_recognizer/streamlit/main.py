@@ -1,7 +1,5 @@
 import streamlit as st
 import requests
-from PIL import Image
-from io import BytesIO
 
 
 def send_video_to_fastapi(video_file):

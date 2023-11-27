@@ -1,9 +1,7 @@
 import sys
 
-from io import BytesIO
-
 from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 
 sys.path.append("../infrastructure/")
 sys.path.append("../configs/")
