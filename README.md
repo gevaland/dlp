@@ -93,6 +93,33 @@ C4Context
     Rel(streamlitComponent, tritonApi,,)
 ```
 
+## Формулировка в ML терминах
+
+### Метрики
+
+![Метрики](https://github.com/gevaland/dlp/assets/48095159/3790a893-226b-457c-b4c3-d4fa01b678a2)
+
+### Датасеты и классы
+
+* https://www.kaggle.com/datasets/andrewmvd/road-sign-detection
+  * 877 картинок в 4 классах Trafic Light, Stop, Speedlimit, Crosswalk
+  * разметка в формате class xmin xmax ymin ymax
+  * знаки русские
+
+* https://www.kaggle.com/datasets/valentynsichkar/traffic-signs-dataset-in-yolo-format
+  * 741 картинок в 4 классах, разметка Class Number, center in x, center in y, Width Height
+  * знаки американские
+
+* https://www.kaggle.com/datasets/barzansaeedpour/traffic-sign-detection?select=classes.txt
+  * 703 картинки, штук 30 классов, разметка в формате class xmin xmax ymin ymax
+ 
+### Результаты сравнения моделей
+
+![mAP_50](https://github.com/gevaland/dlp/assets/48095159/aa6420a4-b936-440e-91f0-2d17f0782e75)
+![mAP](https://github.com/gevaland/dlp/assets/48095159/70fc9b7e-137b-435f-b962-24f1a2c5a24e)
+
+
+
 ## Использование
 
 Чтобы запустить наш сервис необходимо выполнить в командной строке:
