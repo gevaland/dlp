@@ -95,15 +95,17 @@ C4Context
 
 ## Использование
 
-Чтобы запустить наш сервис необходимо использовать команды:
+Чтобы запустить наш сервис необходимо выполнить в командной строке:
 ```sh
-git clone [https://github.com/BekusovMikhail/number_plate.git](https://github.com/gevaland/dlp.git)
+git clone https://github.com/gevaland/dlp.git
 cd dlp/road_sign_recognizer
 docker compose build
 docker compose up
-http://127.0.0.1:8501/
 ```
-Скачать директорию [triton_model_repo](https://drive.google.com/drive/folders/1uRjhYgJrJFe5PR-Bww4Md0Li7XiSg3ta) и перенести ее в `.../dlp/road_sign_recognizer`
+
+Не забыть скачать директорию `triton_model_repo` [тут](https://drive.google.com/drive/folders/1uRjhYgJrJFe5PR-Bww4Md0Li7XiSg3ta) и перенести ее в `.../dlp/road_sign_recognizer`
+
+Можно использовать сервис по адресу [тут](http://127.0.0.1:8501/)
 
 ## Документация
 
