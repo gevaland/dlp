@@ -79,18 +79,23 @@ C4Context
 
     System(nginxApi, "API Gateway", "Проксирует вызовы <br> с фасада во <br> внутренние системы")
     SystemDb(postgresqlDb, "Streamlit DB", "БД снимков и <br> результатов расчетов")
-    System_Ext(tritonApi, "Triton Inference Server", "Запускает модель <br> на инференс")
+    System_Ext(tritonSystemE, "Triton Inference Server", "Запускает модель <br> на инференс")
 
-    Container_Boundary(appContainer, "Streamlit", "Приложение для запроса данных по разметке") {
-        Component(streamlitComponent, "Инференс", "Python", "Загрузка и обработка <br> видео, содержащего <br> дорожные знаки")
+    Container_Boundary(streamlitContainer, "Streamlit", "Приложение для запроса данных по разметке") {
         Component(statComponent, "Статистика", "Python", "Статистика <br> работы сервиса")
+        Component(streamlitComponent, "Инференс", "Python", "Загрузка и обработка <br> видео, содержащего <br> дорожные знаки")
+    }
+
+    Container_Boundary(fastapiContainer, "Fastapi", "Приложение для медиатора между сервисами") {
+        Component(fastapiComponent, "Медиатор", "Python", "Взаимодействие <br> с инференсом")
     }
 
     Rel(personUser, nginxApi,,)
     Rel(nginxApi, streamlitComponent,,)
     Rel(nginxApi, statComponent,,)
-    Rel(streamlitComponent, postgresqlDb,,)
-    Rel(streamlitComponent, tritonApi,,)
+    Rel(streamlitComponent, fastapiComponent,,)
+    Rel(fastapiComponent, postgresqlDb,,)
+    Rel(fastapiComponent, tritonSystemE,,)
 ```
 
 ## Формулировка в ML терминах
