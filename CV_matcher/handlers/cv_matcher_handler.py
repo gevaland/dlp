@@ -1,16 +1,23 @@
 import numpy as np
+from transformers import AutoTokenizer
+from optimum.onnxruntime import ORTModelForFeatureExtraction
+import torch
+
+tokenizer = AutoTokenizer.from_pretrained("./weights/rubert_onnx")
+model = ORTModelForFeatureExtraction.from_pretrained("./weights/rubert_onnx")
 
 
-def road_sign_detection_treatment(image_np, triton):
-    road_sign_detection_results = triton.road_sign_detector.inference(image_np)
+def embed_bert_cls(text, model, tokenizer):
+    t = tokenizer(text, padding=True, truncation=True, return_tensors='pt')
+    with torch.no_grad():
+        model_output = model(**{k: v.to(model.device) for k, v in t.items()})
+    embeddings = model_output.last_hidden_state[:, 0, :]
+    embeddings = torch.nn.functional.normalize(embeddings)
+    return embeddings[0].cpu().numpy()
 
-    road_sign_boxes = np.expand_dims(
-        road_sign_detection_results["bboxes"], axis=0
-    )
-    road_sign_scores = np.expand_dims(
-        road_sign_detection_results["scores"], axis=0
-    )
-    road_sign_labels = np.expand_dims(
-        road_sign_detection_results["labels"], axis=0
-    )
-    return road_sign_boxes, road_sign_scores, road_sign_labels
+
+def get_text_vector(file_full_path):
+    with open(file_full_path, 'r') as f:
+        text = f.read()
+    embedding = embed_bert_cls(text, model, tokenizer)
+    return embedding

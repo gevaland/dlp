@@ -7,6 +7,8 @@ from fastapi import UploadFile
 import os
 import random
 
+from .cv_matcher_handler import get_text_vector
+
 sys.path.append("../infrastructure/")
 sys.path.append("../configs/")
 # from inference_model import TritonInference
@@ -36,11 +38,6 @@ def count_distance(one_file, rest_files):
     top5 = sorted(distances, key=lambda x: x[1])[:5]
     return [x[0] for x in top5]
 
-
-def get_text_vector(file_full_path):  # Этот вызов нужно передалать!
-    with open(f"{file_full_path}", "r") as f:
-        file_size = len(f.read())
-    return [file_size]
 
 
 def get_top5(file_id: UploadFile, option: str = None):
