@@ -1,13 +1,10 @@
 import sys
 
-# from dlp.CV_matcher.handlers.cv_matcher_handler import (
-#     road_sign_detection_treatment,
-# )
 from fastapi import UploadFile
 import os
 import random
 
-from .cv_matcher_handler import get_text_vector
+from cv_matcher_handler import get_text_vector
 
 sys.path.append("../infrastructure/")
 sys.path.append("../configs/")

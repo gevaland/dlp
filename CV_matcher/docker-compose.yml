@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  lpr_fast_api:
+  fast_api:
     # image: python:3.10-slim
     build:
       context: .
@@ -12,6 +12,13 @@ services:
     volumes:
       - ./fast_api/storage:/app/storage
     command: "uvicorn fast_api.main:app --port 8600"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
   postgres:
     image: postgres:13.3
     environment:
@@ -21,31 +28,30 @@ services:
     ports:
       - "5432:5432"
     network_mode: "host"
-  inference_server:
-    image: nvcr.io/nvidia/tritonserver:23.08-py3
-    # runtime: nvidia
+  # inference_server:
+  #   image: nvcr.io/nvidia/tritonserver:23.08-py3
+  #   # runtime: nvidia
 
-    volumes:
-      - ./triton_model_repo/:/models
-    ports:
-      - 8400:8000
-      - 8401:8001
-      - 8402:8002
-    command: [ "tritonserver", "--model-repository=/models" ]
-    shm_size: 4g
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: [ '0' ]
-              capabilities: [ gpu ]
-    ulimits:
-      memlock: -1
-      stack: 67108864
-    network_mode: "host"
-  lpr_streamlit:
-    # image: python:3.10
+  #   volumes:
+  #     - ./triton_model_repo/:/models
+  #   ports:
+  #     - 8400:8000
+  #     - 8401:8001
+  #     - 8402:8002
+  #   command: [ "tritonserver", "--model-repository=/models" ]
+  #   shm_size: 4g
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             device_ids: [ '0' ]
+  #             capabilities: [ gpu ]
+    # ulimits:
+    #   memlock: -1
+    #   stack: 67108864
+    # network_mode: "host"
+  streamlit:
     build:
       context: .
       dockerfile: ./streamlit/Dockerfile

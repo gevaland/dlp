@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 import tritonclient.http as httpclient
-import mmcv
 
 
-class Road_sign_detector:
+class CV_matcher:
     def __init__(self, client):
         self.client = client
 
