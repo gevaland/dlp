@@ -2,7 +2,7 @@
 Чтобы запустить наш сервис необходимо использовать команды:
 ```sh
 git clone [https://github.com/BekusovMikhail/number_plate.git](https://github.com/gevaland/dlp.git)
-cd dlp/road_sign_recognizer
+cd dlp/CV_matcher
 docker compose build
 docker compose up
 http://127.0.0.1:8501/
