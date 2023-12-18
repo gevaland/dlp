@@ -1,7 +1,5 @@
 import streamlit as st
 import requests
-import os
-
 
 def send_text_matching(uploaded_file, option):
     url = f"http://localhost:8600/matching/{option}"
@@ -13,7 +11,7 @@ def send_text_matching(uploaded_file, option):
 def main():
     st.title("Матчинг вакансий и резюме")
 
-    option = st.radio("Что вы хотите загрузить?", ("Resume", "Job"))
+    option = st.radio("Что Вы хотите загрузить?", ("Resume", "Job"))
 
     uploaded_file = st.file_uploader(
         f"Загрузите {option.lower()}", type=["txt"]

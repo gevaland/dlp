@@ -1,109 +1,36 @@
 import cv2
 import numpy as np
 import tritonclient.http as httpclient
+from transformers import AutoTokenizer
 
 
 class CV_matcher:
     def __init__(self, client):
         self.client = client
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "/app/handlers/weights/rubert_onnx/",
+            # export=True,
+            provider="CUDAExecutionProvider",
+        )
 
-    def _preprocess(self, image, dim=(640, 640)):
-        shape = image.shape[:2]
-        scale_factor = 640 / max(shape)
-        image = mmcv.imrescale(
-            img=image,
-            scale=scale_factor,
-            interpolation="area" if scale_factor < 1 else "bilinear",
-        )
-        new_shape = image.shape[:2]
-        padding_h, padding_w = [
-            dim[0] - image.shape[0],
-            dim[1] - image.shape[1],
-        ]
-        top_padding, left_padding = int(round(padding_h // 2 - 0.1)), int(
-            round(padding_w // 2 - 0.1)
-        )
-        bottom_padding = padding_h - top_padding
-        right_padding = padding_w - left_padding
+    def normalize(self, v):
+        norm = np.linalg.norm(v)
+        if norm == 0:
+            return v
+        return v / norm
 
-        padding_list = [
-            top_padding,
-            bottom_padding,
-            left_padding,
-            right_padding,
-        ]
-        image = mmcv.impad(
-            img=image,
-            padding=(
-                padding_list[2],
-                padding_list[0],
-                padding_list[3],
-                padding_list[1],
-            ),
-            pad_val=(114, 114, 114),
-            padding_mode="constant",
+    def embed_bert_cls(self, text):
+        t = self.tokenizer(
+            text, padding=True, truncation=True, return_tensors="np"
         )
-        img_preprocessed = image.transpose(2, 0, 1)
-        img_preprocessed = img_preprocessed.astype("float32") / 255.0
-        img_preprocessed = np.expand_dims(img_preprocessed, axis=0)
-        return img_preprocessed, {
-            "shape": shape,
-            "new_shape": new_shape,
-            "padding_list": padding_list,
-        }
-
-    def _get_res(self, img_preprocessed):
-        detection_input = httpclient.InferInput(
-            "images", img_preprocessed.shape, datatype="FP32"
+        input = []
+        for i in t:
+            input_temp = httpclient.InferInput(i, t[i].shape, datatype="INT64")
+            input_temp.set_data_from_numpy(t[i], binary_data=True)
+            input.append(input_temp)
+        outputs = self.client.infer(
+            model_name="feature_extractor", inputs=input
         )
-        detection_input.set_data_from_numpy(img_preprocessed, binary_data=True)
-        detection_response = self.client.infer(
-            model_name="road_sign_detector", inputs=[detection_input]
-        )
-        boxes = detection_response.as_numpy("boxes")[0]
-        scores = detection_response.as_numpy("scores")[0]
-        labels = detection_response.as_numpy("labels")[0]
-        return boxes, scores, labels
-
-    def _postprocessing(
-        self, boxes, scores, labels, shapes_info, score_thr=0.4
-    ):
-        filtered_boxes = []
-        filtered_scores = []
-        filtered_labels = []
-        for i in range(len(boxes)):
-            if scores[i] > score_thr:
-                tb = [
-                    shapes_info["shape"][1]
-                    * (boxes[i][0] - shapes_info["padding_list"][2])
-                    / shapes_info["new_shape"][1],
-                    shapes_info["shape"][0]
-                    * (boxes[i][1] - shapes_info["padding_list"][0])
-                    / shapes_info["new_shape"][0],
-                    shapes_info["shape"][1]
-                    * (boxes[i][2] - shapes_info["padding_list"][2])
-                    / shapes_info["new_shape"][1],
-                    shapes_info["shape"][0]
-                    * (boxes[i][3] - shapes_info["padding_list"][0])
-                    / shapes_info["new_shape"][0],
-                ]
-                tb[0] = 0 if tb[0] < 0 else tb[0]
-                tb[1] = 0 if tb[1] < 0 else tb[1]
-                tb[2] = 0 if tb[2] < 0 else tb[2]
-                tb[3] = 0 if tb[3] < 0 else tb[3]
-                # tb = [tb[0], tb[1], tb[2]-tb[0], tb[3]-tb[1]]
-                filtered_boxes.append(tb)
-                filtered_scores.append(scores[i])
-                filtered_labels.append(labels[i])
-
-        return filtered_boxes, filtered_scores, filtered_labels
-
-    def inference(self, frame: np.array):
-        img_preprocessed, shapes_info = self._preprocess(
-            cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        )
-        boxes, scores, labels = self._get_res(img_preprocessed)
-        boxes, scores, labels = self._postprocessing(
-            boxes, scores, labels, shapes_info
-        )
-        return {"bboxes": boxes, "scores": scores, "labels": labels}
+        out_np = outputs.as_numpy("last_hidden_state")[0, 0, :]
+        embedding = self.normalize(out_np)
+        return embedding.tolist()
